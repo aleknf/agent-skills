@@ -16,7 +16,7 @@ npx skills add aleknf/agent-skills
 npx skills add aleknf/agent-skills --skill salesforce-metadata-deploy
 
 # Install globally (available in every project) instead of the current project
-npx skills add -g aleknf/agent-skills --skill discovery-to-proposal
+npx skills add -g aleknf/agent-skills --skill lark-okr-planner
 ```
 
 Skills are discovered from `skills/<name>/SKILL.md` and `skills/curated/<name>/SKILL.md`.
@@ -42,8 +42,7 @@ Written and maintained in this repository.
 | Skill | Description |
 | :--- | :--- |
 | [`salesforce-metadata-deploy`](skills/salesforce-metadata-deploy/SKILL.md) | Guides and automates SFDX source metadata deployments to target Salesforce orgs via `sf project deploy start`, with dry-run validation, multi-pass dependency ordering, and intelligent error diagnostics. |
-| [`discovery-to-proposal`](skills/discovery-to-proposal/SKILL.md) | Turns presales discovery notes into a requirement matrix, a platform recommendation (Salesforce, Lark, or both), a proposal outline, and a demo script. |
-| [`lark-okr-presales`](skills/lark-okr-presales/SKILL.md) | Creates presales OKRs (objectives and key results) in Lark with `lark-cli`, including the rich-text content format that avoids the "saved as `*`" pitfall. |
+| [`lark-okr-planner`](skills/lark-okr-planner/SKILL.md) | Drafts and creates OKRs (objectives, key results, weights, alignment) in Lark for any team or role with `lark-cli`, including the rich-text content format that avoids the "saved as `*`" pitfall. |
 
 ---
 
