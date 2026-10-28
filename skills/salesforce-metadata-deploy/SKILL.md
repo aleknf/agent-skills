@@ -1,101 +1,101 @@
 ---
 name: salesforce-metadata-deploy
-description: Panduan dan otomatisasi deployment SFDX source metadata (Objects, Fields, Flows, Layouts, Permission Sets, dll.) ke Salesforce org menggunakan Salesforce CLI (`sf project deploy start`), dilengkapi dry-run/validasi, multi-pass dependency resolution, dan diagnosa error cerdas.
+description: Guidance and automation for deploying SFDX source metadata (Objects, Fields, Flows, Layouts, Permission Sets, etc.) to a Salesforce target org using the Salesforce CLI (`sf project deploy start`), featuring dry-run/validation, multi-pass dependency resolution, and intelligent error diagnostics.
 ---
 
 # Salesforce Metadata Deploy
 
-Gunakan skill ini ketika diminta mendeploy komponen metadata SFDX lokal ke Salesforce org target, memvalidasi deployment, atau mendiagnosa dan memperbaiki kegagalan deploy metadata.
+Use this skill when tasked with deploying local SFDX source metadata to a target Salesforce org, validating deployments, or diagnosing and fixing metadata deployment failures.
 
-## Prinsip & Batasan Utama
-1. **Verifikasi Target Org**: Selalu cek dan konfirmasi alias/username target org (`sf config get target-org` atau via parameter) sebelum menjalankan deployment nyata.
-2. **Prioritaskan Dry-Run**: Gunakan flag `--dry-run` terlebih dahulu untuk memvalidasi dependency dan kompatibilitas metadata sebelum menulis perubahan ke target org.
-3. **Multi-Pass Otomatis untuk Urutan Dependency**: Jika kegagalan hanya disebabkan oleh urutan deploy (misal field custom belum ada saat layout atau validation rule di-deploy), kelompokkan dan deploy dalam beberapa tahap secara otomatis.
-4. **Approval untuk Perubahan Destruktif**: Jika error memerlukan modifikasi file metadata (menghapus referensi field yang hilang, mengubah XML, atau exclude komponen), rangkum akar masalah dan minta konfirmasi sebelum mengubah file.
-5. **No Apex Test Class Auto-Gen**: Jangan membuat Apex test class atau Jest test untuk demonstrasi konfigurasi/setup presales.
+## Core Principles & Constraints
+1. **Verify Target Org**: Always inspect and confirm the target org alias/username (`sf config get target-org` or via CLI parameters) before executing a live deployment.
+2. **Prioritize Dry-Run**: Run validation with the `--dry-run` flag first to verify dependencies and metadata compatibility before writing changes to the target org.
+3. **Automated Multi-Pass for Dependency Ordering**: If a failure is purely caused by deployment sequence (e.g., custom fields must exist before layout or validation rules are deployed), automatically group and deploy components in logical stages.
+4. **Approval for Destructive Changes**: If an error requires modifying metadata files (removing references to missing fields, editing XML, or excluding components), summarize the root cause and request user confirmation before modifying files.
+5. **No Apex Test Class Auto-Gen**: Do not generate Apex test classes or Jest tests for presales configuration/setup demonstrations.
 
 ---
 
-## Alur Kerja Deployment
+## Deployment Workflow
 
-### Langkah 1: Pengecekan Environment & Target Org
-Jalankan pengecekan direktori project dan default org:
+### Step 1: Environment & Target Org Check
+Inspect the current working directory and default org:
 ```bash
 sf config get target-org
 ```
-Tampilkan informasi ringkas ke pengguna:
-- **Project path**: direktori kerja saat ini
-- **Target Org**: alias atau username Salesforce target
-- **Komponen**: path direktori (`--source-dir`) atau daftar metadata (`--metadata`) yang akan di-deploy
+Present a concise summary to the user:
+- **Project path**: Current working directory
+- **Target Org**: Target Salesforce username or alias
+- **Components**: Source directory (`--source-dir`) or metadata list (`--metadata`) to deploy
 
-Tanyakan/konfirmasi jika target org belum sesuai atau belum diatur.
+Prompt for confirmation if the target org is unconfigured or ambiguous.
 
 ---
 
-### Langkah 2: Validasi / Dry-Run
-Jalankan validasi tanpa menerapkan perubahan:
+### Step 2: Validation / Dry-Run
+Run deployment validation without applying changes:
 ```bash
 sf project deploy validate --source-dir <path> --target-org <alias/username>
-# atau
+# or
 sf project deploy start --dry-run --source-dir <path> --target-org <alias/username>
 ```
 
-- Jika **sukses** (green): Lanjut ke konfirmasi eksekusi deploy nyata.
-- Jika **gagal**: Analisis output error JSON atau log CLI (`sf project deploy report`).
+- If **successful** (green): Proceed to ask for confirmation before live deployment.
+- If **failed**: Analyze the error output or CLI log (`sf project deploy report`).
 
 ---
 
-### Langkah 3: Penanganan Error & Klasifikasi Masalah
+### Step 3: Error Handling & Problem Classification
 
-Ketika deploy/validasi gagal, klasifikasikan error ke salah satu dari dua kategori:
+When a deployment/validation fails, classify the error into one of two categories:
 
-#### Kategori A: Masalah Urutan Dependency (Multi-Pass Otomatis)
-Contoh kasus:
-- Field custom belum ter-deploy tetapi sudah direferensikan di Page Layout, Validation Rule, atau Flow.
-- Custom Object belum ada saat Child Object/Master-Detail Custom Field di-deploy.
-- Record Type mereferensikan Picklist Value yang baru dibuat.
+#### Category A: Dependency Ordering Issues (Automated Multi-Pass)
+Common examples:
+- Custom fields referenced in Page Layouts, Validation Rules, or Flows before the fields are created.
+- Custom Object referenced by child objects or Master-Detail fields before the parent object is deployed.
+- Record Types referencing new Picklist Values.
 
-**Tindakan Otomatis**:
-1. Buat urutan deploy bertahap (Pass 1 -> Pass 2 -> Pass 3):
-   - **Pass 1 (Struktur Dasar)**: `CustomObject`, `CustomField`, `GlobalPicklist`
-   - **Pass 2 (Logika & Aturan)**: `ValidationRule`, `RecordType`, `BusinessProcess`
-   - **Pass 3 (Antarmuka & Keamanan)**: `Layout`, `FlexiPage`, `Flow`, `PermissionSet`, `Profile`
-2. Eksekusi per pass dengan flag `--metadata` atau `--source-dir` terpisah.
-3. Laporkan hasil tiap pass.
+**Automated Action**:
+1. Construct a staged multi-pass deployment plan (Pass 1 -> Pass 2 -> Pass 3):
+   - **Pass 1 (Core Schema)**: `CustomObject`, `CustomField`, `GlobalPicklist`
+   - **Pass 2 (Logic & Rules)**: `ValidationRule`, `RecordType`, `BusinessProcess`
+   - **Pass 3 (UI & Security)**: `Layout`, `FlexiPage`, `Flow`, `PermissionSet`, `Profile`
+2. Execute each pass sequentially using distinct `--metadata` or `--source-dir` flags.
+3. Report the result of each pass.
 
-#### Kategori B: Referensi Hilang / Metadata Rusak (Diagnosa & Rekomendasi)
-Contoh kasus:
-- Komponen mereferensikan field/objek yang tidak ada di metadata lokal maupun di target org (missing dependency).
-- Profile/PermissionSet mereferensikan komponen standard org yang belum diaktifkan (misal chatter, knowledge).
-- Versi API metadata tidak didukung oleh target org.
+#### Category B: Missing References / Broken Metadata (Diagnosis & Recommendation)
+Common examples:
+- Component references a field/object missing both locally and in the target org.
+- Profile/PermissionSet references a standard org feature not enabled in the target org (e.g., Chatter, Knowledge).
+- Metadata API version unsupported by the target org.
 
-**Tindakan**:
-1. Bedah log error dan ekstrak:
-   - Nama komponen bermasalah (`Component Name`)
-   - Pesan error teknis (`Problem`)
-   - Lokasi file XML / JSON (`File Path`)
-2. Rangkum akar masalah dalam 2-3 kalimat berbahasa Indonesia sederhana.
-3. Berikan opsi tindakan konkrit:
-   - **Opsi 1**: Hapus baris referensi hilang dari XML/file lokal (tunjukkan diff yang diusulkan).
-   - **Opsi 2**: Exclude komponen bermasalah dari daftar deploy (misal deploy tanpa PermissionSet/Layout tersebut).
-   - **Opsi 3**: Tambahkan dependensi yang hilang dari target org (`sf project retrieve start`).
-4. **Tunggu persetujuan pengguna** sebelum melakukan perubahan file atau exclude permanen.
+**Action**:
+1. Parse the error log and extract:
+   - **Component Name**: The affected metadata component
+   - **Problem**: Technical error message
+   - **File Path**: Relative path to the XML/JSON file
+2. Summarize the root cause in 2–3 clear sentences.
+3. Present concrete action options:
+   - **Option 1**: Strip missing references from the local file/XML (show proposed diff).
+   - **Option 2**: Exclude problematic components from the deployment payload.
+   - **Option 3**: Retrieve missing dependencies from the target org (`sf project retrieve start`).
+4. **Wait for user confirmation** before modifying files or permanently excluding components.
 
 ---
 
-### Langkah 4: Eksekusi Deploy Nyata
-Setelah validasi lolos atau perbaikan disetujui:
+### Step 4: Live Deployment Execution
+Once validation succeeds or fixes are approved:
 ```bash
 sf project deploy start --source-dir <path> --target-org <alias/username>
 ```
-Gunakan flag opsional bila relevan:
-- `--ignore-conflicts`: Jika ingin menimpa metadata remote di scratch org/sandbox.
-- `--concise`: Untuk output yang lebih ringkas.
+Useful optional flags:
+- `--ignore-conflicts`: Overwrite remote changes in scratch orgs or sandboxes.
+- `--concise`: Provide streamlined CLI output.
 
 ---
 
-### Langkah 5: Pelaporan Status Akhir
-Laporkan hasil deployment secara transparan:
-- Komponen yang berhasil di-deploy (`Deployed`)
-- Komponen yang dilewati/di-exclude (jika ada)
-- Status akhir target org (URL/alias target org yang berhasil diperbarui)
+### Step 5: Final Status Reporting
+Report deployment results transparently:
+- **Deployed Components**: Components successfully deployed
+- **Skipped/Excluded Components**: Components omitted (if any)
+- **Target Org Status**: Updated org alias/URL
