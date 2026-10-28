@@ -1,30 +1,62 @@
 # Agent Skills
 
-A curated collection of production-ready skills for AI Agents (OpenBot, Claude Code, Gemini Antigravity, etc.) to automate, guide, and streamline software engineering, platform configurations, and presales workflows.
+A collection of skills for AI Agents (OpenBot, Claude Code, Gemini Antigravity, etc.) to automate, guide, and streamline software engineering, platform configurations, and presales workflows. It contains original skills and a small set of curated community skills, kept clearly separate.
 
 ---
 
-## Skills Directory
+## Installation
+
+Install with the [`skills`](https://github.com/vercel-labs/skills) CLI:
+
+```bash
+# Interactive: choose skills and target agents
+npx skills add aleknf/agent-skills
+
+# Install one specific skill
+npx skills add aleknf/agent-skills --skill salesforce-metadata-deploy
+
+# Install globally (available in every project) instead of the current project
+npx skills add -g aleknf/agent-skills --skill discovery-to-proposal
+```
+
+Skills are discovered from `skills/<name>/SKILL.md` and `skills/curated/<name>/SKILL.md`.
+
+### Manual copy
+
+```bash
+# OpenBot / local agent
+cp -r skills/<skill-name> ~/.agents/skills/
+
+# Gemini / Antigravity
+cp -r skills/<skill-name> ~/.gemini/config/skills/
+```
+
+For a curated skill, copy from `skills/curated/<skill-name>`.
+
+---
+
+## Original Skills
+
+Written and maintained in this repository.
 
 | Skill | Description |
 | :--- | :--- |
-| [`salesforce-metadata-deploy`](skills/salesforce-metadata-deploy/SKILL.md) | Guides and automates SFDX source metadata deployments to target Salesforce orgs via `sf project deploy start`, featuring dry-run validation, multi-pass dependency ordering, and intelligent error diagnostics. |
+| [`salesforce-metadata-deploy`](skills/salesforce-metadata-deploy/SKILL.md) | Guides and automates SFDX source metadata deployments to target Salesforce orgs via `sf project deploy start`, with dry-run validation, multi-pass dependency ordering, and intelligent error diagnostics. |
+| [`discovery-to-proposal`](skills/discovery-to-proposal/SKILL.md) | Turns presales discovery notes into a requirement matrix, a platform recommendation (Salesforce, Lark, or both), a proposal outline, and a demo script. |
+| [`lark-okr-presales`](skills/lark-okr-presales/SKILL.md) | Creates presales OKRs (objectives and key results) in Lark with `lark-cli`, including the rich-text content format that avoids the "saved as `*`" pitfall. |
 
 ---
 
-## Installation & Usage
+## Curated Community Skills
 
-### 1. OpenBot / Local Agent
-Copy the skill folder into your agent local skills directory:
-```bash
-cp -r skills/<skill-name> ~/.agents/skills/
-```
+**Not original work.** These are copies of community skills, included because they pair well with the original ones. Each keeps its upstream license (MIT), credits its author in the `SKILL.md` frontmatter and notice, and is listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Copies are snapshots and may lag behind upstream.
 
-### 2. Gemini / Antigravity
-Copy into your Gemini skills configuration directory:
-```bash
-cp -r skills/<skill-name> ~/.gemini/config/skills/
-```
+| Skill | Description | Source |
+| :--- | :--- | :--- |
+| [`lark-event`](skills/curated/lark-event/SKILL.md) | Stream Lark/Feishu real-time events as NDJSON via `lark-cli event consume`. | [larksuite/cli](https://github.com/larksuite/cli) |
+| [`lark-base`](skills/curated/lark-base/SKILL.md) | Operate Lark Base (Bitable): tables, fields, records, views, forms, dashboards, workflows. | [larksuite/cli](https://github.com/larksuite/cli) |
+| [`obsidian-markdown`](skills/curated/obsidian-markdown/SKILL.md) | Create and edit Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties. | [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) |
+| [`n8n-workflow-patterns`](skills/curated/n8n-workflow-patterns/SKILL.md) | Proven architectural patterns for n8n workflows (webhook, API, database, AI agent, scheduled). | [czlonkowski/n8n-skills](https://github.com/czlonkowski/n8n-skills) |
 
 ---
 
