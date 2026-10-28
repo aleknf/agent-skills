@@ -1,6 +1,6 @@
 # Agent Skills
 
-A collection of skills for AI Agents (OpenBot, Claude Code, Gemini Antigravity, etc.) to automate, guide, and streamline software engineering, platform configurations, and presales workflows. It contains original skills and a small set of curated community skills, kept clearly separate.
+A collection of skills for AI Agents (OpenBot, Claude Code, Gemini Antigravity, etc.) to automate, guide, and streamline software engineering, platform configurations, and automation workflows. It contains original skills and a small set of curated community skills, kept clearly separate.
 
 ---
 
