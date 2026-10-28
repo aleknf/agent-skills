@@ -41,7 +41,7 @@ Written and maintained in this repository.
 
 | Skill | Description |
 | :--- | :--- |
-| [`salesforce-metadata-deploy`](skills/salesforce-metadata-deploy/SKILL.md) | Guides and automates SFDX source metadata deployments to target Salesforce orgs via `sf project deploy start`, with dry-run validation, multi-pass dependency ordering, and intelligent error diagnostics. |
+| [`salesforce-metadata-deploy`](skills/salesforce-metadata-deploy/SKILL.md) | Guides and automates SFDX source metadata deployments to target Salesforce orgs via `sf project deploy start`, with org-type and Apex checks, dry-run validation, atomic single-pass deploys, and guided error diagnostics. |
 | [`lark-okr-planner`](skills/lark-okr-planner/SKILL.md) | Drafts and creates OKRs (objectives, key results, weights, alignment) in Lark for any team or role with `lark-cli`, including the rich-text content format that avoids the "saved as `*`" pitfall. |
 
 ---
